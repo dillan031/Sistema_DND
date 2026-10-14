@@ -1,29 +1,35 @@
 //Index.js es el archivo base en el que se ejecuta la aplicación, en este se importan los apartados 
 //principales y se ejecutan en el servidor, teniendo claro el puerto donde se ejecutara.
 //Se importan los datos principales de combate, personajes y mounstros.
-import { carlos } from "../src/Datos/Personajes.js";
+import { personajes} from "../src/Datos/Personajes.js";
 import { enemigos } from "../src/Datos/Mounstros.js";
-import { executeAttack } from "./sistema/combate.js";
-import { getTurnOrder } from "./sistema/combate.js";
+import { executeAttack, getTurnOrder } from "./sistema/combate.js";
 
 //se trae de enemigos el id que identifica a cada uno de estos.
-const id = process.argv[2]?.toLowerCase();
+const idHeroe = process.argv[2]?.toLowerCase();
+const idEnemigo = process.argv[3]?.toLowerCase();
 //Se define una variable que toma los ids de cada enemigo y lo trae a el programa principal.
 //Se usa structureClone para evitar que el daño se guarde despues de acabar el combate, evitando que el
 //daño perdure para el siguiente combate.
-const enemigo = structuredClone(enemigos[id]);
+//Se crea la variablle Heroe que representa el personaje actual.
+const heroe = structuredClone(personajes[idHeroe])
+//Se crea la variablle enemigo que representa el enemigo actual.
+const enemigo = structuredClone(enemigos[idEnemigo]);
 
-//Si se pone un enemigo que no pertenece a los que se encuentran en la lista de ids se muestra cuales estan disponibles.
+//Si se pone un enemigo o heroe que no pertenece a los que se encuentran en la lista de ids se muestra cuales estan disponibles.
+if (!heroe) {
+  console.log("Heroe no encontrado. Disponibles: " + Object.keys(personajes).join(", "));
+  process.exit(1);
+}
+
 if (!enemigo) {
   console.log("Enemigo no encontrado. Disponibles: " + Object.keys(enemigos).join(", "));
   process.exit(1);
 }
 
 //Se muestran las estadisticas de los personajes y el enemigo.
-console.log(`${carlos.name}: CA ${carlos.armorClass}, PG ${carlos.currentHp}/${carlos.maxHp}`);
+console.log(`${heroe.name}: CA ${heroe.armorClass}, PG ${heroe.currentHp}/${heroe.maxHp}`);
 console.log(`${enemigo.name}: CA ${enemigo.armorClass}, PG ${enemigo.currentHp}/${enemigo.maxHp}`);
-//Se crea la variablle Heroe que representa el personaje actual.
-const heroe = structuredClone(carlos);
 //Se crea la funcion mostrarAtaque que muestra el resultado del ataque en ese turno.
 function mostrarAtaque(atacante, objetivo, turno) {
   //Se toma como base arma, ataque y daño para definir un turno.
@@ -94,7 +100,7 @@ const textoRondas = rondas === 1 ? "ronda" : "rondas";
 //Cilo if que define que si los puntos de combate de heroe son mayor que o al final, gana el combate.
 if (heroe.currentHp > 0) {
   console.log(`${heroe.name} gana el combate en ${rondas} ${textoRondas}.`);
-  //Si no es el caso el enemigo gana el compate y se reinician las rondas.
+  //Si no es el caso el enemigo gana el compate y se muestra el ganador de la ronda.
 } else {
   console.log(`${enemigo.name} gana el combate en ${rondas} ${textoRondas}.`);
 }

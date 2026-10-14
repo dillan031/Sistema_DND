@@ -128,3 +128,6 @@ export const mirrir = {
     },
   ],
 };
+
+//Creación de una especie de catalogo personajes.
+export const personajes = {carlos,krouds,mirrir};

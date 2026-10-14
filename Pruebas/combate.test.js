@@ -166,3 +166,17 @@ describe("getTurnOrder", () => {
     }
   });
 });
+
+//Se importa la funcion personajes desde personajes.js
+import { personajes } from "../src/Datos/Personajes.js";
+//Se crea el modelo de pruebas que analiza el catalogo de personajes.
+describe("catálogo de personajes", () => {
+  for (const [id, p] of Object.entries(personajes)) {
+    it(`${id} tiene los datos necesarios`, () => {
+      expect(p.maxHp).toBeGreaterThan(0);
+      expect(p.currentHp).toBe(p.maxHp);
+      expect(p.abilities.con).toBeGreaterThan(0);
+      expect(p.weapons.length).toBeGreaterThan(0);
+    });
+  }
+});
