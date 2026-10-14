@@ -16,6 +16,10 @@ Personajes: carlos, krouds, mirrir. Enemigos: goblin, esqueleto, lobo, orco.
 
 Ejemplo: `node src/index.js krouds orco`
 
+## Modo Manual
+
+node src/index.js <personaje> <enemigo> --manual
+
 ## Pruebas
 ```
 npm test

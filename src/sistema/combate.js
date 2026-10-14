@@ -35,13 +35,13 @@ export function resolveAttack(roll, bonus, armorClass){
     return {total,critical,fumble,hit}
 }
 
-//Se importa la funcion rollDie que simula el lanzamiento de un dado de 20 caras.
-import {rollDie} from "./Dice.js";
+//Se importa la funcion rollDice que simula varios dados y de varias caras
+import {randomRoller} from "./Dice.js";
 
 //Se crea en sistema una funcion llamada performAttack que se encarga de simular un ataque de principio a fin.
-export function performAttack(attacker, weapon, target) {
+export function performAttack(attacker, weapon, target, roller = randomRoller) {
 //Roll se define como una tirada de un dado de 20
-  const roll = rollDie(20);
+  const roll = roller.d20(`${attacker.name} ataca con ${weapon.name}`);
 //Bonus se define como el bonificador de ataque que tiene el atacante mas su arma. 
   const bonus = getAttackBonus(attacker, weapon);
 //result es el calculo de el dado mas el bonus en comparacion con la clase de armadura.
@@ -49,18 +49,19 @@ export function performAttack(attacker, weapon, target) {
   return { roll, bonus, ...result };
 }
 
-//Se importa la funcion rollDice que simula varios dados y de varias caras
-import {rollDice} from "./Dice.js";
+
 
 //Se crea la funcion rollDamage que simula cuanto daño se hace cuando se impacta
-export function rollDamage(attacker, weapon, critical) {
+export function rollDamage(attacker, weapon, critical, roller = randomRoller) {
 //baseCount es el daño base que tiene un arma segun los dados de esta.
   const baseCount = weapon.damageDice.count;
 //count es la suma entre el daño base y su aumento al doble si existe un critico. 
   const count = critical ? baseCount * 2 : baseCount;
 //modifier es la suma que se obtiene de las habilidades del personaje y sus armas.
   const modifier = getModifier(attacker.abilities[weapon.ability]);
-  return rollDice(count, weapon.damageDice.sides) + modifier;
+  //Se trae motivo para tener en cuenta el valor del dado en el modo manual
+  const motivo = `${attacker.name}: daño de ${weapon.name}${critical ? " (crítico)" : ""}`;
+  return roller.dice(count, weapon.damageDice.sides, motivo) + modifier;
 }
 
 //Se crea la funcion applyDamage que se encarga de guardar el daño aplicado en cada turno.
@@ -73,11 +74,11 @@ export function applyDamage(target, damage) {
 }
 
 //Se crea la funcion executeAttack, que le permite a los dos bandos ejecutar ataques.
-export function executeAttack(attacker, target) {
+export function executeAttack(attacker, target, roller = randomRoller) {
   //Se usa la variable weapon para determinar el arma del atacante.
   const weapon = attacker.weapons[0];
   //Se usa la variable attack para referirse a los principales medios de un ataque.
-  const attack = performAttack(attacker, weapon, target);
+  const attack = performAttack(attacker, weapon, target, roller);
   //se inicia con un daño de 0 que cambia segun el ataque.
   let damage = 0;
 
@@ -85,7 +86,7 @@ export function executeAttack(attacker, target) {
   if (attack.hit) {
   //el daño se define como el resultado de la tirada de daño,  tomando en cuenta el atacante, el arma.
   //y el bonificador de ataque critico.
-  damage = rollDamage(attacker, weapon, attack.critical);
+  damage = rollDamage(attacker, weapon, attack.critical, roller);
   //Se usa applyDamage para aplicar el daño en el objetivo dependiendo de la variable damage.
   applyDamage(target, damage);
 }
@@ -93,21 +94,21 @@ export function executeAttack(attacker, target) {
 }
 
 //Se crea la funcion rollInitiative, que define que combatiente toma la iniciativa para atacar primero.
-export function rollInitiative(creature) {
+export function rollInitiative(creature, roller = randomRoller) {
   //Se define el modificador que marca la iniciativa del combate.
   const modifier = getModifier(creature.abilities.dex);
   //se suma el puntaje de el dado de 20 caras con el modificador de habilidad.
-  return rollDie(20) + modifier;
+  return roller.d20(`Iniciativa de ${creature.name}`) + modifier;
 }
 
 //Se crea la funcion getTurnOrder que define el turno de los combatientes.
-export function getTurnOrder(combatants) {
+export function getTurnOrder(combatants, roller = randomRoller){
   //Se define la variable withInitiative que toma los combatientes y los pone en una tabla.
   const withInitiative = combatants.map((c) => ({
     //Combatant significa combatiente. 
     combatant: c,
     //Initiative es igual al rollInitiative de combatant.
-    initiative: rollInitiative(c),
+    initiative: rollInitiative(c, roller),
   }));
 //Se organizan los resultados de la iniciativa del sujeto a y del sujeto b.
   withInitiative.sort((a, b) =>

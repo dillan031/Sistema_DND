@@ -15,3 +15,14 @@ export function rollDice(count, sides){
 //por ultimo se retorna el total de lanzamientos de cada dado.
     return total;
 }
+
+//Se crea una funcion que ´permita registrar le puesta de los valores de los dados de forma manual
+export const randomRoller = {
+    //Se declara la variable motivo que detecta para que es la tirada siendo ignorada por la fuente aleatoria.
+    //RollDie representa el dado de 20 caras.
+    //d20 representa el metodo manual de asignacion del valor de el dado de 20.
+  d20: (motivo) => rollDie(20),
+  //dice representa el metodo manual de la asignacion de valor de varios dados y caras.
+  //el => rollDice(count,sides) representa la fuente aleatoria.
+  dice: (count, sides, motivo) => rollDice(count, sides),
+};

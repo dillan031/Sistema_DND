@@ -12,5 +12,8 @@
   "type": "module",
   "devDependencies": {
     "vitest": "^5.0.3"
+  },
+  "dependencies": {
+    "readline-sync": "^1.4.10"
   }
 }

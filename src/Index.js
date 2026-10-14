@@ -4,6 +4,8 @@
 import { personajes} from "../src/Datos/Personajes.js";
 import { enemigos } from "../src/Datos/Mounstros.js";
 import { executeAttack, getTurnOrder } from "./sistema/combate.js";
+import { randomRoller } from "./sistema/Dice.js";
+import { createManualRoller } from "./Consola/dados-manuales.js";
 
 //se trae de enemigos el id que identifica a cada uno de estos.
 const idHeroe = process.argv[2]?.toLowerCase();
@@ -60,8 +62,13 @@ function mostrarAtaque(atacante, objetivo, turno) {
   }
 }
 }
+//se importan las variables manuales para determinar el orden inicial.
+//se declara la funcion manual que representa la opcion de dados manuales en consola.
+const manual = process.argv.includes("--manual");
+//se declara la funcion roller que define si la tirada se define por tirada manual o automatizada.
+const roller = manual ? createManualRoller() : randomRoller;
 //Se define la variable orden que se encarga de poner el orden de ataque de el heroe y el enemigo.
-const orden = getTurnOrder([heroe, enemigo]);
+const orden = getTurnOrder([heroe, enemigo], roller);
 
 //Se usa un ciclo for utilizando combatiente e iniciativa para elegir el orden
 for (const { combatant, initiative } of orden) {
@@ -86,7 +93,7 @@ for (const { combatant } of orden) {
     break;
   }
   //Se define turno como la ejecucion de ataques entre combatiente y objetivo.
-  const turno = executeAttack(combatant, objetivo);
+  const turno = executeAttack(combatant, objetivo, roller);
   //Se define mostrarAtaque como el resultado del combatiente, el objetivo y el turno.
   mostrarAtaque(combatant, objetivo, turno);
 }
